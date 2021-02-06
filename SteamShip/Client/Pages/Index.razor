@@ -1,7 +1,39 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+<h1>Find Steam games in common</h1>
 
-Welcome to your new app.
+<input @bind="fieldId" />
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<button class="btn btn-primary" @onclick="addSteamId">Add</button>
+
+@if (@currentIds.Count < 2)
+{
+    <p>Please enter at least 2 steam ids to compare</p>
+}
+else
+{
+    <p>Comparing games from these @currentIds.Count steam accounts:</p>
+}
+
+@foreach (var curid in currentIds)
+{
+    var id = curid;
+    <p>
+    @id <button class="btn" @onclick="() => removeId(id)">x</button>
+    </p>
+}
+
+@code {
+    private string fieldId;
+
+    private List<string> currentIds = new List<string>();
+
+    private void addSteamId()
+    {
+        currentIds.Add(fieldId);
+    }
+
+    private void removeId(string id) {
+        currentIds.Remove(id);
+    }
+}
