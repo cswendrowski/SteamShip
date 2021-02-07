@@ -1,10 +1,12 @@
 ﻿@page "/"
+@using SteamShip.Shared
+@inject HttpClient Http
 
 <h1>Find Steam games in common</h1>
 
 <input @bind="fieldId" />
 
-<button class="btn btn-primary" @onclick="addSteamId">Add</button>
+<button class="btn btn-primary" @onclick="@(async () => await addSteamId())">Add</button>
 
 @if (@currentIds.Count < 2)
 {
@@ -19,7 +21,7 @@ else
 {
     var id = curid;
     <p>
-    @id <button class="btn" @onclick="() => removeId(id)">x</button>
+        @id <button class="btn" @onclick="() => removeId(id)">x</button>
     </p>
 }
 
@@ -28,12 +30,15 @@ else
 
     private List<string> currentIds = new List<string>();
 
-    private void addSteamId()
+    private async Task addSteamId()
     {
-        currentIds.Add(fieldId);
+        var profile = await Http.GetFromJsonAsync<SteamProfile>("steam?id=" + fieldId);
+        currentIds.Add(profile.Id);
+        fieldId = "";
     }
 
-    private void removeId(string id) {
+    private void removeId(string id)
+    {
         currentIds.Remove(id);
     }
 }
