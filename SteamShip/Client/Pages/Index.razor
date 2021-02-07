@@ -25,20 +25,48 @@ else
     </p>
 }
 
+@if (commonGames != null)
+{
+    <p> CHECK OUT ALL YOUR GAMES WOW YOU HAVE NO LIFE </p>
+
+    @foreach (var game in commonGames)
+    {
+        <p>ID:  @game.appid Hours played: @game.playtime_forever</p>
+    }
+}
+
 @code {
     private string fieldId;
 
     private List<string> currentIds = new List<string>();
+
+    private SteamGame[] commonGames;
 
     private async Task addSteamId()
     {
         var profile = await Http.GetFromJsonAsync<SteamProfile>("steam?id=" + fieldId);
         currentIds.Add(profile.Id);
         fieldId = "";
+        getGamesInCommon();
     }
 
     private void removeId(string id)
     {
         currentIds.Remove(id);
+        getGamesInCommon();
+    }
+
+    private async Task getGamesInCommon()
+    {
+        if(currentIds.Count == 0) {
+            //TODO CHange this to < 2 when we actually compare owned games
+            //do nothing yet
+            return;
+        }
+
+        Console.WriteLine("Hitting backend for games in common!");
+        var response = await Http.PostAsJsonAsync("Steam/GetGamesInCommon", currentIds);
+        commonGames = await response.Content.ReadFromJsonAsync<SteamGame[]>();
+        this.StateHasChanged();
     }
 }
