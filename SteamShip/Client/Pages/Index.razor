@@ -27,12 +27,26 @@ else
 
 @if (commonGames != null)
 {
-    <p> CHECK OUT ALL YOUR GAMES WOW YOU HAVE NO LIFE </p>
+    <p> You have @commonGames.Length games in common!</p>
 
-    @foreach (var game in commonGames)
-    {
-        <p>ID:  @game.appid Hours played: @game.playtime_forever</p>
-    }
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Game Title</th>
+                <th>Hours Played</th> 
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var game in commonGames)
+            {
+                <tr>
+                    <td>@game.name</td>
+                    <td>@game.hours_played</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
 }
 
 @code {
@@ -58,13 +72,11 @@ else
 
     private async Task getGamesInCommon()
     {
-        if(currentIds.Count == 0) {
-            //TODO CHange this to < 2 when we actually compare owned games
-            //do nothing yet
+        if(currentIds.Count < 2) {
+            //nothing to compare yet
             return;
         }
 
-        Console.WriteLine("Hitting backend for games in common!");
         var response = await Http.PostAsJsonAsync("Steam/GetGamesInCommon", currentIds);
         commonGames = await response.Content.ReadFromJsonAsync<SteamGame[]>();
         this.StateHasChanged();

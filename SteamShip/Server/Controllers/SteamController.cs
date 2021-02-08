@@ -32,15 +32,28 @@ namespace SteamShip.Server.Controllers
         public async Task<IEnumerable<SteamGame>> GetGamesInCommon([FromBody] List<string> steamIds)
         {
             SteamOwnedGames ownedGames = null;
+            SteamGame[] sharedGames = null;
 
-            ownedGames = await GetSteamGamesFromId(steamIds[0]);
+            foreach(var steamId in steamIds) {
+                ownedGames = await GetSteamGamesFromId(steamId);
 
-            return ownedGames.games;
+                if(sharedGames == null) {
+                    sharedGames = ownedGames.games;
+                } else {
+                    IEnumerable<SteamGame> shared = sharedGames.Intersect(ownedGames.games, new SteamGameComparer());
+                    sharedGames = shared.ToArray();
+                    //TODO Somehow extract hours played for each player for display on the UI
+                }
+
+            }
+
+            
+            return sharedGames;
         }
 
         private async Task<SteamOwnedGames> GetSteamGamesFromId(string id)
         {
-            string getOwnedGamesUrl = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={ApiKey}&steamid={id}&format=json";
+            string getOwnedGamesUrl = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={ApiKey}&steamid={id}&include_appinfo=true&include_played_free_games=true&format=json";
 
             using (var client = new HttpClient()) {
                 HttpResponseMessage httpResponse = await client.GetAsync(getOwnedGamesUrl);

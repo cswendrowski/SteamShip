@@ -10,6 +10,36 @@ namespace SteamShip.Shared
 
         public int appid { get; set; }
 
+        //in minutes
         public int playtime_forever { get; set; }
+
+        public int hours_played => (int)(playtime_forever / 60);
+
+    }
+
+// Custom comparer for SteamGame object
+public class SteamGameComparer : IEqualityComparer<SteamGame>
+{
+    // Games are equal if their app_id's are equal.
+    public bool Equals(SteamGame x, SteamGame y)
+    {
+        return x.appid == y.appid;
+    }
+
+    // If Equals() returns true for a pair of objects
+    // then GetHashCode() must return the same value for these objects.
+
+    public int GetHashCode(SteamGame game)
+    {
+        if (Object.ReferenceEquals(game, null)) return 0;
+
+        int hashGameId = game.appid.GetHashCode();
+
+        int hashGameName = game.name.GetHashCode();
+
+        return hashGameId ^ hashGameName;
     }
 }
+
+}
+
