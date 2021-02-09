@@ -29,13 +29,13 @@ namespace SteamShip.Server.Controllers
 
 
         [HttpPost("[action]")]
-        public async Task<IEnumerable<SteamGame>> GetGamesInCommon([FromBody] List<string> steamIds)
+        public async Task<IEnumerable<SteamGame>> GetGamesInCommon([FromBody] List<SteamProfile> steamProfiles)
         {
             SteamOwnedGames ownedGames = null;
             SteamGame[] sharedGames = null;
 
-            foreach(var steamId in steamIds) {
-                ownedGames = await GetSteamGamesFromId(steamId);
+            foreach(var steamProfile in steamProfiles) {
+                ownedGames = await GetSteamGamesFromId(steamProfile.Id);
 
                 if(sharedGames == null) {
                     sharedGames = ownedGames.games;
@@ -63,19 +63,28 @@ namespace SteamShip.Server.Controllers
         }
 
         [HttpGet]
-        public SteamProfile GetSteamProfile(string id)
+        public SteamProfile GetSteamProfile(string query)
         {
+
             var steamIdRegex = new Regex(@"\d{17}");
 
-            if (!steamIdRegex.IsMatch(id))
+            if (!steamIdRegex.IsMatch(query))
             {
-                id = GetSteamIdFromName(id);
+                var id = GetSteamIdFromName(query);            
+                return new SteamProfile()
+                {
+                    Id = id,
+                    Name = query
+                };
+            } else {
+                return new SteamProfile()
+                {
+                    Id = query,
+                    //Name = ?? TODO find a way to get name from id
+                };                
             }
 
-            return new SteamProfile()
-            {
-                Id = id
-            };
+
         }
 
         private string GetSteamIdFromName(string name)

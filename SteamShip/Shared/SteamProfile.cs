@@ -9,5 +9,7 @@ namespace SteamShip.Shared
     public class SteamProfile
     {
         public string Id { get; set; }
+
+        public string Name { get; set; }
     }
 }

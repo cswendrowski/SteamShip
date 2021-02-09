@@ -8,20 +8,21 @@
 
 <button class="btn btn-primary" @onclick="@(async () => await addSteamId())">Add</button>
 
-@if (@currentIds.Count < 2)
+@if (@currentProfiles.Count < 2)
 {
     <p>Please enter at least 2 steam ids to compare</p>
 }
 else
 {
-    <p>Comparing games from these @currentIds.Count steam accounts:</p>
+    <p>Comparing games from these @currentProfiles.Count steam profiles:</p>
 }
 
-@foreach (var curid in currentIds)
+@foreach (var curProf in currentProfiles)
 {
-    var id = curid;
+    var id = curProf.Id;
+    var name = curProf.Name;
     <p>
-        @id <button class="btn" @onclick="() => removeId(id)">x</button>
+        @name <button class="btn" @onclick="() => removeProfile(curProf)">x</button>
     </p>
 }
 
@@ -52,32 +53,34 @@ else
 @code {
     private string fieldId;
 
-    private List<string> currentIds = new List<string>();
+    private List<SteamProfile> currentProfiles = new List<SteamProfile>();
 
     private SteamGame[] commonGames;
 
     private async Task addSteamId()
     {
-        var profile = await Http.GetFromJsonAsync<SteamProfile>("steam?id=" + fieldId);
-        currentIds.Add(profile.Id);
-        fieldId = "";
+
+        var profile = await Http.GetFromJsonAsync<SteamProfile>("steam?query=" + fieldId);
+        currentProfiles.Add(profile);
         getGamesInCommon();
     }
 
-    private void removeId(string id)
-    {
-        currentIds.Remove(id);
+    private void removeProfile(SteamProfile profile)
+    {        
+        //TODO Verify steam profile exists and handle errors
+
+        currentProfiles.Remove(profile);
         getGamesInCommon();
     }
 
     private async Task getGamesInCommon()
     {
-        if(currentIds.Count < 2) {
+        if(currentProfiles.Count < 2) {
             //nothing to compare yet
             return;
         }
 
-        var response = await Http.PostAsJsonAsync("Steam/GetGamesInCommon", currentIds);
+        var response = await Http.PostAsJsonAsync("Steam/GetGamesInCommon", currentProfiles);
         commonGames = await response.Content.ReadFromJsonAsync<SteamGame[]>();
         this.StateHasChanged();
     }
