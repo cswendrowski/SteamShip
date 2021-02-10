@@ -42,10 +42,17 @@ namespace SteamShip.Server.Controllers
                 } else {
                     IEnumerable<SteamGame> shared = sharedGames.Intersect(ownedGames.games, new SteamGameComparer());
                     sharedGames = shared.ToArray();
-                    //TODO Somehow extract hours played for each player for display on the UI
                 }
 
             }
+
+            //At this point the hours played is added up from each player. Now we have to average them. 
+            foreach(var game in sharedGames) {
+                game.playtime_forever /= steamProfiles.Count;
+            }
+
+            //Now we sort by hours played!
+            Array.Sort(sharedGames, new SteamGameComparer());
 
             
             return sharedGames;

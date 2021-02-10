@@ -18,12 +18,19 @@ namespace SteamShip.Shared
     }
 
 // Custom comparer for SteamGame object
-public class SteamGameComparer : IEqualityComparer<SteamGame>
+public class SteamGameComparer : IEqualityComparer<SteamGame>, IComparer<SteamGame>
 {
     // Games are equal if their app_id's are equal.
     public bool Equals(SteamGame x, SteamGame y)
     {
-        return x.appid == y.appid;
+
+        if(x.appid == y.appid) {
+            //add up playtime for averaging at the end. I know its hacky to have a compare method make changes to the object but I challenge you to do better
+            y.playtime_forever += x.playtime_forever;
+            return true;
+        }
+
+        return false;
     }
 
     // If Equals() returns true for a pair of objects
@@ -39,6 +46,12 @@ public class SteamGameComparer : IEqualityComparer<SteamGame>
 
         return hashGameId ^ hashGameName;
     }
+
+    public int Compare(SteamGame x, SteamGame y)
+    {
+        return -1 * x.playtime_forever.CompareTo(y.playtime_forever);
+    }
+
 }
 
 }

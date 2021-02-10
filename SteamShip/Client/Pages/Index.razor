@@ -34,7 +34,7 @@ else
         <thead>
             <tr>
                 <th>Game Title</th>
-                <th>Hours Played</th> 
+                <th>Average Hours Played</th> 
             </tr>
         </thead>
         <tbody>
@@ -62,6 +62,7 @@ else
 
         var profile = await Http.GetFromJsonAsync<SteamProfile>("steam?query=" + fieldId);
         currentProfiles.Add(profile);
+        fieldId = "";
         getGamesInCommon();
     }
 
