@@ -15,6 +15,10 @@ namespace SteamShip.Shared
 
         public int hours_played => (int)(playtime_forever / 60);
 
+        public string img_icon_url { get; set; }
+
+        public string img_logo_url { get; set; }
+
     }
 
 // Custom comparer for SteamGame object

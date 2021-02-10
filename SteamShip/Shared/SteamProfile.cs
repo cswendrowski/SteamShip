@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SteamShip.Shared
+﻿namespace SteamShip.Shared
 {
     public class SteamProfile
     {
         public string Id { get; set; }
 
         public string Name { get; set; }
+
+        public string Persona { get; set; }
+
+        public string AvatarUrl { get; set; }
     }
 }

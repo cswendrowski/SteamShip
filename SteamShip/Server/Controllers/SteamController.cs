@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace SteamShip.Server.Controllers
 {
@@ -63,35 +64,48 @@ namespace SteamShip.Server.Controllers
             string getOwnedGamesUrl = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={ApiKey}&steamid={id}&include_appinfo=true&include_played_free_games=true&format=json";
 
             using (var client = new HttpClient()) {
-                HttpResponseMessage httpResponse = await client.GetAsync(getOwnedGamesUrl);
+                var httpResponse = await client.GetAsync(getOwnedGamesUrl);
                 string responseString = await httpResponse.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<SteamOwnedGamesRoot>(responseString).response;
+                return JsonConvert.DeserializeObject<SteamOwnedGamesRoot>(responseString).response;
             }
         }
 
         [HttpGet]
-        public SteamProfile GetSteamProfile(string query)
+        public async Task<SteamProfile> GetSteamProfile(string query)
         {
 
             var steamIdRegex = new Regex(@"\d{17}");
 
+            var profile = new SteamProfile();
+
             if (!steamIdRegex.IsMatch(query))
             {
-                var id = GetSteamIdFromName(query);            
-                return new SteamProfile()
-                {
-                    Id = id,
-                    Name = query
-                };
-            } else {
-                return new SteamProfile()
-                {
-                    Id = query,
-                    //Name = ?? TODO find a way to get name from id
-                };                
+                profile.Id = GetSteamIdFromName(query);
+            }
+            else
+            {
+                profile.Id = query;
             }
 
+            var fullProfile = await GetFullSteamProfile(profile.Id);
 
+            profile.Name = fullProfile.Realname;
+            profile.Persona = fullProfile.Personaname;
+            profile.AvatarUrl = fullProfile.Avatar.AbsoluteUri;
+
+            return profile;
+        }
+
+        private async Task<Player> GetFullSteamProfile(string id)
+        {
+            var fullProfileUrl = $"http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={ApiKey}&steamids={id}";
+
+            using (var client = new HttpClient())
+            {
+                var httpResponse = await client.GetAsync(fullProfileUrl);
+                string responseString = await httpResponse.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<FullProfile>(responseString).Response.Players.First();
+            }
         }
 
         private string GetSteamIdFromName(string name)

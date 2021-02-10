@@ -4,7 +4,7 @@
 
 <h1>Find Steam games in common</h1>
 
-<input @bind="fieldId" />
+<input type="text" id="steamship-id-input" @bind="fieldId" @onkeyup="HandleKeyPress" autocomplete="on" />
 
 <button class="btn btn-primary" @onclick="@(async () => await addSteamId())">Add</button>
 
@@ -20,9 +20,9 @@ else
 @foreach (var curProf in currentProfiles)
 {
     var id = curProf.Id;
-    var name = curProf.Name;
+    var name = curProf.Persona;
     <p>
-        @name <button class="btn" @onclick="() => removeProfile(curProf)">x</button>
+        <img src="@curProf.AvatarUrl" /> @name <button class="btn" @onclick="() => removeProfile(curProf)">x</button>
     </p>
 }
 
@@ -34,14 +34,15 @@ else
         <thead>
             <tr>
                 <th>Game Title</th>
-                <th>Average Hours Played</th> 
+                <th>Average Hours Played</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var game in commonGames)
             {
+                var url = $"http://media.steampowered.com/steamcommunity/public/images/apps/{game.appid}/{game.img_logo_url}.jpg";
                 <tr>
-                    <td>@game.name</td>
+                    <td><img src="@url"/> @game.name</td>
                     <td>@game.hours_played</td>
                 </tr>
             }
@@ -57,26 +58,36 @@ else
 
     private SteamGame[] commonGames;
 
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            addSteamId();
+        }
+    }
+
     private async Task addSteamId()
     {
-
         var profile = await Http.GetFromJsonAsync<SteamProfile>("steam?query=" + fieldId);
         currentProfiles.Add(profile);
         fieldId = "";
-        getGamesInCommon();
+        await getGamesInCommon();
     }
 
-    private void removeProfile(SteamProfile profile)
-    {        
+    private async Task removeProfile(SteamProfile profile)
+    {
         //TODO Verify steam profile exists and handle errors
 
         currentProfiles.Remove(profile);
-        getGamesInCommon();
+        commonGames = null;
+        this.StateHasChanged();
+        await getGamesInCommon();
     }
 
     private async Task getGamesInCommon()
     {
-        if(currentProfiles.Count < 2) {
+        if (currentProfiles.Count < 2)
+        {
             //nothing to compare yet
             return;
         }
