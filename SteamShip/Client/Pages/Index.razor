@@ -2,33 +2,37 @@
 @using SteamShip.Shared
 @inject HttpClient Http
 
-<h1>Find Steam games in common</h1>
+<img src="https://i.imgur.com/3F1qfIZ.png" style="width:100px;height:100px;" class="center"/>
 
-<input type="text" id="steamship-id-input" @bind="fieldId" @onkeyup="HandleKeyPress" autocomplete="on" />
+<h1>Find Steam Games in Common</h1>
 
-<button class="btn btn-primary" @onclick="@(async () => await addSteamId())">Add</button>
+<p class="profile-input">
+    <input type="text" id="steamship-id-input" @bind="fieldId" @onkeyup="HandleKeyPress" autocomplete="on" />
+
+    <button class="btn btn-primary right" @onclick="@(async () => await addSteamId())" >Add</button>
+</p>
 
 @if (@currentProfiles.Count < 2)
 {
-    <p>Please enter at least 2 steam ids to compare</p>
+    <p class="center">Please enter at least 2 steam ids to compare</p>
 }
 else
 {
-    <p>Comparing games from these @currentProfiles.Count steam profiles:</p>
+    <p class="center">Comparing games from these @currentProfiles.Count steam profiles:</p>
 }
 
 @foreach (var curProf in currentProfiles)
 {
     var id = curProf.Id;
     var name = curProf.Persona;
-    <p>
+    <p class="center">
         <img src="@curProf.AvatarUrl" /> @name <button class="btn" @onclick="() => removeProfile(curProf)">x</button>
     </p>
 }
 
 @if (commonGames != null)
 {
-    <p> You have @commonGames.Length games in common!</p>
+    <p class="center"> You have @commonGames.Length games in common!</p>
 
     <table class="table">
         <thead>
@@ -48,7 +52,6 @@ else
             }
         </tbody>
     </table>
-
 }
 
 @code {
@@ -68,6 +71,10 @@ else
 
     private async Task addSteamId()
     {
+        if (fieldId == null || fieldId.Equals("")) {
+            return;
+        }
+
         var profile = await Http.GetFromJsonAsync<SteamProfile>("steam?query=" + fieldId);
         currentProfiles.Add(profile);
         fieldId = "";
