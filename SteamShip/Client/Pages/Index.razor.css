@@ -1,8 +1,3 @@
-.profile-input {
-    margin-left: auto;
-    margin-right: auto;
-    width: 30%;
-}
 
 .center {
     display: block;
@@ -12,10 +7,6 @@
     text-align: center;
 }
 
-.right {
-    display: block;
-    float: right;
-}
 
 h1 {
     text-align: center;

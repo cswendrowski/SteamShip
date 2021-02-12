@@ -6,10 +6,10 @@
 
 <h1>Find Steam Games in Common</h1>
 
-<p class="profile-input">
+<p class="center">
     <input type="text" id="steamship-id-input" @bind="fieldId" @onkeyup="HandleKeyPress" autocomplete="on" />
 
-    <button class="btn btn-primary right" @onclick="@(async () => await addSteamId())" >Add</button>
+    <button class="btn btn-primary" @onclick="@(async () => await addSteamId())" >Add</button>
 </p>
 
 @if (@currentProfiles.Count < 2)
