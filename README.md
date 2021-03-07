@@ -1,2 +1,2 @@
 # SteamShip
-A spirital successor to Steamparty with Discord integration
+A spirital successor to Steamparty
